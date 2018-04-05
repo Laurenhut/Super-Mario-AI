@@ -636,7 +636,7 @@ function on_paint()
     -- gui.text(65,60, tostring(th6))
 
 
-    if a==50 then
+    if a==25 then
         Player_x = s16("WRAM", 0x0094)
         Player_y = s16("WRAM", 0x0096)
         -- gui.text(15,12,Player_x) -- will give pixel position
@@ -670,7 +670,7 @@ function on_paint()
 
         for j = 0, SMW.sprite_max - 1 do
             -- socket:send(tostring(id1[j]),zmq.SNDMORE )
-
+            --id
             if id1[j] == nil then
                 socket:send(tostring(-1),zmq.SNDMORE )
             else
@@ -678,33 +678,31 @@ function on_paint()
             end
 
 
-
+            --contact
             if contact_str[j] == nil or contact_str[j] == ''  then
                 socket:send(tostring(0),zmq.SNDMORE )
             else
                 socket:send(tostring(contact_str[j]),zmq.SNDMORE )
             end
-
-
+            --xpos
             if x[j] == nil then
                 socket:send(tostring(-1),zmq.SNDMORE )
             else
+                x[j]=send[0]-x[j]
                 socket:send(tostring(x[j]),zmq.SNDMORE )
             end
 
-            -- socket:send(tostring(x[j]),zmq.SNDMORE )
-
-
-            -- socket:send(tostring(x_speed[j]),zmq.SNDMORE )
             if x_speed[j] == nil then
                 socket:send(tostring(0),zmq.SNDMORE )
             else
                 socket:send(tostring(x_speed[j]),zmq.SNDMORE )
             end
 
+            --ypos
             if y[j] == nil then
                 socket:send(tostring(-1),zmq.SNDMORE )
             else
+                y[j]=send[4]-y[j]
                 socket:send(tostring(y[j]),zmq.SNDMORE )
             end
             -- socket:send(tostring(y[j]),zmq.SNDMORE )
@@ -722,10 +720,7 @@ function on_paint()
         else
             socket:send(counter )
         end
-        -- socket:send(send[3])
-        -- socket:send(send[0] )
-        -- socket:send(send[2])
-        -- local reply = socket:recv()
+
         socket:close()
         context:term()
 
@@ -738,17 +733,6 @@ function on_paint()
     end
 
 
-
-
-
-    -- Player_x = s16("WRAM", 0x0094)
-    --gui.text(15,12,Player_x) -- will give pixel position
-    -- Player_s = s16("WRAM",sprite_number)
-    -- sprite_number = u8("WRAM", 0x16cd + id)
-    -- Player_block = s16("WRAM", player_blocked_status)
-
-   -- gui.text(30,12,Player_ground) -- 1=yes 0=no
-   -- gui.text(15,30,Player_s) --?
 
 end
 gui.repaint() -- Tell lsnes to update display when we run this script!
