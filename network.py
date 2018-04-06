@@ -431,12 +431,12 @@ def Qlearn(episode, steps, prob,sess):
     #saves training data
     saver=tf.train.Saver()
     # if i==0:
-    # st=tf.train.get_checkpoint_state('./')
-    # if st and st.model_checkpoint_path:
-    #     saver.restore(sess,st.model_checkpoint_path)
-    #     print ("loaded")
-    # else:
-    #     print ("nothing to restore")
+    st=tf.train.get_checkpoint_state('./')
+    if st and st.model_checkpoint_path:
+        saver.restore(sess,st.model_checkpoint_path)
+        print ("loaded")
+    else:
+        print ("nothing to restore")
     #initializesall my variables so i can now print them after they have been evaluated
     sess.run(tf.global_variables_initializer())
     count=0
