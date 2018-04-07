@@ -20,7 +20,7 @@ m = PyMouse()
 k = PyKeyboard()
 
 steps=20000
-episodes=500
+episodes=1000
 batchsize=32
 replaysize=500000
 epsilon= 0.1
@@ -28,7 +28,7 @@ es=0.1
 ef= 0.0001
 tot=50000
 
-actions=['nothing','z','x',k.right_key ]
+actions=['x',k.right_key ]
 
 # actions=['nothing','z','x','a','jright','jleft','sleft','sright',k.up_key,k.down_key,k.left_key,k.right_key]
 numact=len(actions)
@@ -102,7 +102,7 @@ def screengrab(th,ystanding, oldscore,xold):
             print("Received y speed: %s " % stuff5[i])
         print("Received counter: %s " % counter[0])
 
-        st=map(int,x)+map(int,y)+map(int,end)+map(int,score)+map(int,gnd)+map(int,stuff)+map(int,stuff1)+map(int,stuff2)+map(float,stuff3)+map(int,stuff4)+map(float,stuff5)+map(int,counter)
+        st=map(int,x)+map(int,y)+map(float,end)+map(int,score)+map(int,gnd)+map(int,stuff)+map(int,stuff1)+map(int,stuff2)+map(float,stuff3)+map(int,stuff4)+map(float,stuff5)+map(int,counter)
         print(st)
         # print(len(st))
 
@@ -123,27 +123,27 @@ def screengrab(th,ystanding, oldscore,xold):
         y=map(int,y)
         score=map(int,score)
         x=map(int,x)
-        end=map(int,end)
+        end=map(float,end)
 
 
-        if 0>end[0]: #hidden zeros?
+        if end[0]>0.0: #hidden zeros? x 4959
             print ("goal!")
             reward=100
             atend=True
             xold=x[0]
 
-        elif y[0] > ystanding+50 :
+        elif y[0] > ystanding+25 :
             print ("dead")
             reward=-100
             atend=True
             xold=x[0]
 
-        elif score[0]> oldscore:
-            oldscore=score[0]
-            print ("score inc")
-            reward=10
-            atend=False
-            xold=x[0]
+        # elif score[0]> oldscore:
+        #     oldscore=score[0]
+        #     print ("score inc")
+        #     reward=10
+        #     atend=False
+        #     xold=x[0]
         elif x[0]>xold+5:
             reward= 1
             print("right")
@@ -471,7 +471,7 @@ def Qlearn(episode, steps, prob,sess):
 
 
         #make first action [right]
-        index=3
+        index=1
         oldinp=3
         #will call the next state and return new state info, rewards,and misc
         img,reward,atend,th,ystanding, oldscore,xold,oldinp=keypress(index,th,ystanding, oldscore,xold,oldinp)
