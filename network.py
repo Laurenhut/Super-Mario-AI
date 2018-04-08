@@ -20,13 +20,14 @@ m = PyMouse()
 k = PyKeyboard()
 
 steps=20000
-episodes=1000
+episodes=10000
 batchsize=32
 replaysize=500000
 epsilon= 0.1
 es=0.1
 ef= 0.0001
 tot=50000
+Stuff=False
 
 actions=['x',k.right_key ]
 
@@ -38,7 +39,12 @@ def screengrab(th,ystanding, oldscore,xold):
     with mss.mss() as sct:
 
         # Part of the screen to capture
-        monitor = {'top': 50, 'left': 65, 'width': 510, 'height': 450}
+        #cropped picture
+        monitor = {'top': 190, 'left': 65, 'width': 512, 'height': 273}
+        #perfect full screen capture
+        #monitor = {'top': 50, 'left': 65, 'width': 512, 'height': 443}
+        #for 230%
+        #monitor = {'top': 50, 'left': 65, 'width': 1210, 'height': 990}
         # output = 'sct-{top}x{left}_{width}x{height}.png'.format(**monitor)
 
         # while 'Screen capturing': ENABLE for video feed
@@ -102,8 +108,8 @@ def screengrab(th,ystanding, oldscore,xold):
             print("Received y speed: %s " % stuff5[i])
         print("Received counter: %s " % counter[0])
 
-        st=map(int,x)+map(int,y)+map(float,end)+map(int,score)+map(int,gnd)+map(int,stuff)+map(int,stuff1)+map(int,stuff2)+map(float,stuff3)+map(int,stuff4)+map(float,stuff5)+map(int,counter)
-        print(st)
+        # st=map(int,x)+map(int,y)+map(float,end)+map(int,score)+map(int,gnd)+map(int,stuff)+map(int,stuff1)+map(int,stuff2)+map(float,stuff3)+map(int,stuff4)+map(float,stuff5)+map(int,counter)
+        # print(st)
         # print(len(st))
 
         k.tap_key('3')
@@ -138,12 +144,12 @@ def screengrab(th,ystanding, oldscore,xold):
             atend=True
             xold=x[0]
 
-        # elif score[0]> oldscore:
-        #     oldscore=score[0]
-        #     print ("score inc")
-        #     reward=10
-        #     atend=False
-        #     xold=x[0]
+        elif score[0]> oldscore:
+            oldscore=score[0]
+            print ("score inc")
+            reward=10
+            atend=False
+            xold=x[0]
         elif x[0]>xold+5:
             reward= 1
             print("right")
@@ -410,7 +416,7 @@ def actionreplay(state,action,reward,state2,isend):
     action_replay.append((state,action,reward,state2,isend))
 
 
-def Qlearn(episode, steps, prob,sess):
+def Qlearn(episode, steps, prob,sess,sz):
     gamma= 0.99
     learnrate=.618
     k = PyKeyboard()
@@ -463,7 +469,8 @@ def Qlearn(episode, steps, prob,sess):
         gnd=0
         score=0
         xold=0
-        epsilon= 0.1
+        epsilon= prob
+        # epsilon= 0.1
         es=0.1
         ef= 0.0001
         tot=50000
@@ -491,7 +498,7 @@ def Qlearn(episode, steps, prob,sess):
 
 
             # will either ge max q or a random q based on episilon e
-            if random.random()<epsilon:
+            if random.random()<=epsilon:
                 print("random")
                 #chooses a random action (takes the index)
                 a1=random.choice(list(enumerate(readout_t[0])))[0]
@@ -503,7 +510,7 @@ def Qlearn(episode, steps, prob,sess):
 
             print (a1)
 
-            if epsilon > ef and count > 100:
+            if epsilon > ef and count > 100 and sz != True:
                 epsilon -= (es- ef) / tot
 
             # #makes an action and returnst state 2, reward
@@ -529,7 +536,7 @@ def Qlearn(episode, steps, prob,sess):
                 action_replay.popleft()
 
             #after count # of frames will begin training on a batch of previous states
-            if count>=100:
+            if count>=100and sz !=True:
                 print ("acton replay ")
                 #sample from minibatch
                 D=random.sample(action_replay,batchsize)
@@ -595,11 +602,14 @@ def main():
         print(i)
         time.sleep(1)
         i+=1
-
+    if Stuff==True:
+        ss=.0001
+    else:
+        ss=.07
     k.tap_key('w')
     k.tap_key('1')
     # Qlearn(1,60,.99,sess)
-    Qlearn(episodes,steps,.99,sess)
+    Qlearn(episodes,steps,ss,sess,Stuff)
 
 
 if __name__ == "__main__":
