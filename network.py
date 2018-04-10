@@ -437,12 +437,12 @@ def Qlearn(episode, steps, prob,sess,sz):
     #saves training data
     saver=tf.train.Saver()
     # if i==0:
-    st=tf.train.get_checkpoint_state('./')
-    if st and st.model_checkpoint_path:
-        saver.restore(sess,st.model_checkpoint_path)
-        print ("loaded")
-    else:
-        print ("nothing to restore")
+    # st=tf.train.get_checkpoint_state('./')
+    # if st and st.model_checkpoint_path:
+    #     saver.restore(sess,st.model_checkpoint_path)
+    #     print ("loaded")
+    # else:
+    #     print ("nothing to restore")
     #initializesall my variables so i can now print them after they have been evaluated
     sess.run(tf.global_variables_initializer())
     count=0
@@ -495,7 +495,10 @@ def Qlearn(episode, steps, prob,sess,sz):
             readout_t = states.eval(feed_dict={input_layer : [s_t]})
             print("readout")
             print (readout_t) #<- will print out the cnn state values
-
+            print("episode ")
+            print(episode)
+            print("count ")
+            print(count)
 
             # will either ge max q or a random q based on episilon e
             if random.random()<=epsilon:
