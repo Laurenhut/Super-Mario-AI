@@ -19,17 +19,17 @@ tf.logging.set_verbosity(tf.logging.INFO)
 m = PyMouse()
 k = PyKeyboard()
 
-steps=20000
-episodes=10000
+steps=50000
+episodes=1000
 batchsize=32
 replaysize=500000
 epsilon= 0.1
 es=0.1
 ef= 0.0001
-tot=50000
+tot=2000
 Stuff=False
 
-actions=['x',k.right_key ]
+actions=['nothing','x',k.right_key ]
 
 # actions=['nothing','z','x','a','jright','jleft','sleft','sright',k.up_key,k.down_key,k.left_key,k.right_key]
 numact=len(actions)
@@ -138,18 +138,18 @@ def screengrab(th,ystanding, oldscore,xold):
             atend=True
             xold=x[0]
 
-        elif y[0] > ystanding+25 :
+        elif y[0] > ystanding+5 :
             print ("dead")
             reward=-100
             atend=True
             xold=x[0]
 
-        elif score[0]> oldscore:
-            oldscore=score[0]
-            print ("score inc")
-            reward=10
-            atend=False
-            xold=x[0]
+        # elif score[0]> oldscore:
+        #     oldscore=score[0]
+        #     print ("score inc")
+        #     reward=10
+        #     atend=False
+        #     xold=x[0]
         elif x[0]>xold+5:
             reward= 1
             print("right")
@@ -157,7 +157,7 @@ def screengrab(th,ystanding, oldscore,xold):
             atend=False
         else:
             print ("nothing happening")
-            reward=0
+            reward=-1
             atend=False
             xold=x[0]
 
@@ -232,7 +232,6 @@ def keypress(index,th,ystanding, oldscore,xold,oldinp):
         # k.tap_key('3')
         print (" nothing")
         oldinp=press
-
 
         #collects the data for the new state
         st,reward,atend,th,ystanding, oldscore,xold=screengrab(th,ystanding, oldscore,xold)
@@ -436,20 +435,21 @@ def Qlearn(episode, steps, prob,sess,sz):
 
     #saves training data
     saver=tf.train.Saver()
+    sess.run(tf.global_variables_initializer())
     # if i==0:
     # st=tf.train.get_checkpoint_state('./')
-    # if st and st.model_checkpoint_path:
+    # if st and st.model_checkpoint_path :
     #     saver.restore(sess,st.model_checkpoint_path)
     #     print ("loaded")
     # else:
     #     print ("nothing to restore")
     #initializesall my variables so i can now print them after they have been evaluated
-    sess.run(tf.global_variables_initializer())
+
     count=0
 
 
     #LOOP FOR THE NUMBER OF EPISODES I WANT TO USE
-    for i in range(episode):
+    for j in range(episode):
         th=0
         c=0
         xprev=0
@@ -478,8 +478,14 @@ def Qlearn(episode, steps, prob,sess,sz):
 
 
         #make first action [right]
-        index=1
-        oldinp=3
+        index=0
+        oldinp=1
+        k.release_key('x')
+        k.release_key('z')
+        k.release_key(k.right_key)
+        k.release_key(k.up_key)
+        k.release_key(k.down_key)
+        k.release_key(k.left_key)
         #will call the next state and return new state info, rewards,and misc
         img,reward,atend,th,ystanding, oldscore,xold,oldinp=keypress(index,th,ystanding, oldscore,xold,oldinp)
         img=cv2.cvtColor( cv2.resize(img,(88,88)), cv2.COLOR_BGR2GRAY)
@@ -496,9 +502,11 @@ def Qlearn(episode, steps, prob,sess,sz):
             print("readout")
             print (readout_t) #<- will print out the cnn state values
             print("episode ")
-            print(episode)
+            print(j)
             print("count ")
             print(count)
+            print("random ")
+            print(epsilon)
 
             # will either ge max q or a random q based on episilon e
             if random.random()<=epsilon:
@@ -577,7 +585,7 @@ def Qlearn(episode, steps, prob,sess,sz):
 
             count+=1
             #saves the model after 1k steps
-            if i%1000==0:
+            if i%1000==0 and sz != True:
                 saver.save(sess, './mario.ckpt', global_step=i, write_state=True )
 
             #if we have died or reached the end terminate episode else continue
@@ -608,7 +616,7 @@ def main():
     if Stuff==True:
         ss=.0001
     else:
-        ss=.07
+        ss=.1
     k.tap_key('w')
     k.tap_key('1')
     # Qlearn(1,60,.99,sess)
