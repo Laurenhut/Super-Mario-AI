@@ -22,7 +22,7 @@ tf.logging.set_verbosity(tf.logging.INFO)
 m = PyMouse()
 k = PyKeyboard()
 
-steps=70000
+steps=700000
 episodes=1000
 batchsize=32
 replaysize=500000
@@ -169,7 +169,7 @@ def actionreplay(state,action,reward,state2,isend):
     action_replay.append((state,action,reward,state2,isend))
 
 
-def Qlearn(episode, steps, prob,sess,sz):
+def Qlearn(episode, steps,sess, prob,sz):
     gamma= 0.99
     learnrate=.618
     k = PyKeyboard()
@@ -191,17 +191,25 @@ def Qlearn(episode, steps, prob,sess,sz):
 
 
     #saves training data
-    #saver=tf.train.Saver()
-    sess.run(tf.global_variables_initializer())
+    saver=tf.train.Saver()
+    #sess = tf.InteractiveSession()
 
-    st=tf.train.get_checkpoint_state('./')
-    saver = tf.train.import_meta_graph('Breakout.ckpt-0.meta')
+
+    sess.run(tf.global_variables_initializer())
+    st=tf.train.get_checkpoint_state("saved_networks")
+    print(st)
+    #saver = tf.train.import_meta_graph('Breakout.ckpt.meta')
     if st and st.model_checkpoint_path :
-        saver.restore(sess,tf.train.latest_checkpoint('./'))
-        print ("loaded")
+        saver.restore(sess,st.model_checkpoint_path)
+        print ("loaded: "+st.model_checkpoint_path)
+
+        #states = graph.get_tensor_by_name("states:0")
+
     else:
+
         print ("nothing to restore")
     #initializesall my variables so i can now print them after they have been evaluated
+    #tf.all_variables()
 
     count=0
 
@@ -376,11 +384,11 @@ def Qlearn(episode, steps, prob,sess,sz):
                 print(totreward)
 
 
-            count+=1
-            #saves the model after 1k steps
-            if i%1000==0 and sz != True:
-                saver.save(sess, './Breakout.ckpt', global_step=i, write_state=True )
 
+            #saves the model after 1k steps
+            if count%500==0 :
+                saver.save(sess, 'saved_networks/'+'Breakout-dqn.ckpt', global_step=i )
+            count+=1
             #if we have died or reached the end terminate episode else continue
             if atend ==True:
 
@@ -401,7 +409,7 @@ def Qlearn(episode, steps, prob,sess,sz):
         img=env.reset()
 
 def main():
-    sess = tf.InteractiveSession()
+
     i=0
     while i<0:
         print(i)
@@ -414,7 +422,8 @@ def main():
     #k.tap_key('w')
     #k.tap_key('1')
     # Qlearn(1,60,.99,sess)
-    Qlearn(episodes,steps,ss,sess,Stuff)
+    sess = tf.InteractiveSession()
+    Qlearn(episodes,steps,sess,ss,Stuff)
 
 
 if __name__ == "__main__":
